@@ -87,6 +87,41 @@ class CommentEnhance {
                         $(this).append('<span class="comment-mark">标记PO</span>');
                         $(this).append('<span class="comment-jumpLink">复制楼层链接</span>');
                         $(this).append('<span class="comment-cap">保存为HTML</span>');
+                        $(this).append('<span class="commentContent-mark">标记评论</span>');
+                        $(this).on('click', '.commentContent-mark', async function (e) {
+                            let describe = prompt("如何评论该评论？(字数和文体不限)", "");
+                            // console.log(e)
+                            // console.log(e.target.parentElement.parentElement.parentElement.parentElement.parentElement)
+                            // console.log(e.target.parentElement.parentElement.parentElement.parentElement.parentElement.dataset)
+                            //反正是主楼层的NCID
+                            let commentId = e.target.parentElement.parentElement.parentElement.parentElement.parentElement.dataset.commentid
+                            let url = e.target.baseURI;
+                            // let commentUrlandNcid = url + "#ncid=" + commentId;
+                            // let acid;
+                            // if (acid = REG.acAid.exec(url)[2]) {
+                            // } else {
+                            //     acid = REG.acVid.exec(url)[2];
+                            // }
+                            let POuid = e.target.parentElement.parentElement.parentElement.children[0].children[0].dataset.userid;
+                            let POname = e.target.parentElement.parentElement.parentElement.children[0].children[0].innerText;
+                            let contentHtml = e.target.parentElement.parentElement.parentElement.children[1].innerHTML;
+                            let rawStore = await getStorage("MarkedComment");
+                            rawStore.MarkedComment.datasets[commentId] = { "POuid": POuid, "POname": POname, "contentHtml": contentHtml, "commentId": commentId, "url": url, "describe": describe };
+                            chrome.runtime.sendMessage(
+                                {
+                                    action: "CommentCollect_writeIn", params: {
+                                        receipt: false, responseRequire: true, asyncWarp: true, data: { "POuid": POuid, "POname": POname, "contentHtml": contentHtml, "commentId": commentId, "url": url, "describe": describe, "masterLayerCtnt": "", "masterLayerPO": "", "masterLayerPOuid": -1 }
+                                    }
+                                }, function (resp) {
+                                    console.log(resp)
+                                    if (resp.data) {
+                                        LeftBottomNotif("AcFun助手：评论收藏成功！", "info", 1500);
+                                        return
+                                    }
+                                    LeftBottomNotif("AcFun助手：评论收藏失败！", "info", 1500);
+                                }
+                            )
+                        })
                         $(this).on('click', '.comment-cap', function () {
                             let data = `<style>
                             html {

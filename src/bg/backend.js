@@ -10,6 +10,7 @@ class ODHBack {
         this.Upgrade = new UpgradeAgent();
         // this.ReqOpDrv = new ReqOperationDrv();
         this.WatchPlan = new WatchPlan();
+        this.CommentCollectMod = new CommentCollect();
 
         this.Ominibox.registerOmnibox();
         this.MsgNotfs.timer4Unread();
@@ -154,10 +155,10 @@ class ODHBack {
             chrome.storage.local.set({ "filter": false }, function () { });
         }
         //关闭用户动态渲染（2021-7-5失效：接口改动）
-        if(rawOpts['userHomeMoment']){
+        if (rawOpts['userHomeMoment']) {
             chrome.storage.local.set({ "userHomeMoment": false }, function () { });
         }
-        if(rawOpts['uddPopUp']){
+        if (rawOpts['uddPopUp']) {
             chrome.storage.local.set({ "uddPopUp": false }, function () { });
         }
     }
@@ -356,6 +357,21 @@ class ODHBack {
         this.WatchPlan.removeAllDiffWatchLaterListItemFromLocal();
     }
 
+    async api_CommentCollect_writeIn(params) {
+        console.log(params)
+        /**
+         * params like these:
+         * {
+         * asyncWarp: true
+            callback: ƒ ()
+            data: {POuid: "259041", POname: "rリiチcャhーaドr_d", contentHtml: "<p class=\"area-comment-des-content\">看评论没看懂<br>加班骂不加班也骂</p>", commentId: "462296112", url: "https://www.acfun.cn/a/ac30240027", …}
+            receipt: false
+            responseRequire: true
+            }
+         */
+        return await this.CommentCollectMod.writeIn(-1, params.data);
+    }
+
     // api_historyView(params){
     //     this.WatchPlan.viewHistoryBackend(params)
     // }
@@ -388,10 +404,10 @@ class ODHBack {
     }
 
     async api_achievementEvent(e) {
-        if(e.data.action=="get"){
+        if (e.data.action == "get") {
             return await db_getHistoricalAchievs(REG.acVid.exec(e.data.url)[2]);
-        }else if(e.data.action=="put"){
-            db_insertHistoricalAchievs(REG.acVid.exec(e.data.url)[2],e.data.tagData);
+        } else if (e.data.action == "put") {
+            db_insertHistoricalAchievs(REG.acVid.exec(e.data.url)[2], e.data.tagData);
             return true;
         }
     }

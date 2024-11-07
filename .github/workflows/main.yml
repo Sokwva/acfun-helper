@@ -1,0 +1,27 @@
+name: Extension Actions
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  publishRelease:
+    name: publish a release package
+    runs-on: ubuntu-latest
+    steps:
+      - name: "checkout"
+        uses: actions/checkout@main
+      - name : "install dependency"
+        run: pnpm install
+      - name: "zip"
+        run: pnpx wxt zip
+      - name: "publish"
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          draft: false
+          files: |
+            *.zip
+
